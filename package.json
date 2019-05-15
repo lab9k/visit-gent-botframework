@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "./lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lab9k/visit-gent-botframework.git"
+  },
   "scripts": {
     "build": "node_modules/.bin/tsc --build",
     "lint": "node_modules/.bin/tslint -c tslint.json 'src/**/*.ts'",
@@ -11,7 +15,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "nodemon --watch ./src -e ts --exec \"npm run start\""
   },
-  "author": "",
+  "author": "Jef Willems <jef.willems@digipolis.gent>",
   "license": "ISC",
   "dependencies": {
     "botbuilder": "^4.4.0",
