@@ -1,12 +1,51 @@
-import { ActivityHandler } from 'botbuilder';
+import {
+  ActivityHandler,
+  BotState,
+  ConversationState,
+  StatePropertyAccessor,
+  UserState,
+} from 'botbuilder';
+import { Dialog, DialogState } from 'botbuilder-dialogs';
+import { MainDialog } from './dialogs/MainDialog';
+import { ILogger } from './logger';
 
 export class VisitBot extends ActivityHandler {
-  constructor() {
+  private conversationState: BotState;
+  private userState: BotState;
+  private logger: ILogger;
+  private dialog: Dialog;
+  private dialogState: StatePropertyAccessor<DialogState>;
+  constructor(
+    conversationState: BotState,
+    userState: BotState,
+    dialog: Dialog,
+    logger: ILogger,
+  ) {
     super();
+    if (!logger) {
+      logger = console as ILogger;
+      logger.log('[VisitBot]: logger not passed in, defaulting to console');
+    }
+
+    this.conversationState = conversationState as ConversationState;
+    this.userState = userState as UserState;
+    this.dialog = dialog;
+    this.logger = logger;
+    this.dialogState = this.conversationState.createProperty<DialogState>(
+      'DialogState',
+    );
+
     // See https://aka.ms/about-bot-activity-message to learn more about the message and other activity types.
     this.onMessage(async (context, next) => {
-      await context.sendActivity(`You said '${context.activity.text}'`);
-      // By calling next() you ensure that the next BotHandler is run.
+      this.logger.log('Running dialog with Message Activity.');
+
+      // Run the Dialog with the new message Activity.
+      await (this.dialog as MainDialog).run(context, this.dialogState);
+
+      // Save any state changes. The load happened during the execution of the Dialog.
+      await this.conversationState.saveChanges(context, false);
+      await this.userState.saveChanges(context, false);
+
       await next();
     });
 
@@ -21,8 +60,13 @@ export class VisitBot extends ActivityHandler {
       await next();
     });
 
-    this.onConversationUpdate(async (context, next) => {
-      await context.sendActivity('[update detected]');
+    this.onDialog(async (context, next) => {
+      // Save any state changes. The load happened during the execution of the Dialog.
+      await this.conversationState.saveChanges(context, false);
+      await this.userState.saveChanges(context, false);
+
+      // By calling next() you ensure that the next BotHandler is run.
+      await next();
     });
   }
 }

@@ -4,10 +4,16 @@ import * as restify from 'restify';
 
 // Import required bot services.
 // See https://aka.ms/bot-services to learn more about the different parts of a bot.
-import { BotFrameworkAdapter } from 'botbuilder';
+import {
+  BotFrameworkAdapter,
+  ConversationState,
+  MemoryStorage,
+  UserState,
+} from 'botbuilder';
 
 // This bot's main dialog.
 import { VisitBot } from './bot';
+import { MainDialog } from './dialogs/MainDialog';
 
 const ENV_FILE = path.join(__dirname, '..', '.env');
 config({ path: ENV_FILE });
@@ -35,10 +41,20 @@ adapter.onTurnError = async (context, error) => {
   console.error(`\n [onTurnError]: ${error}`);
   // Send a message to the user
   await context.sendActivity(`Oops. Something went wrong!`);
+  await conversationState.delete(context);
 };
 
+const logger = console;
+let conversationState: ConversationState;
+let userState: UserState;
+
+const memoryStorage = new MemoryStorage();
+conversationState = new ConversationState(memoryStorage);
+userState = new UserState(memoryStorage);
+
 // Create the main dialog.
-const myBot = new VisitBot();
+const dialog = new MainDialog(logger);
+const myBot = new VisitBot(conversationState, userState, dialog, logger);
 
 // Listen for incoming requests.
 server.post('/api/messages', (req, res) => {
