@@ -9,6 +9,7 @@ import {
   WaterfallDialog,
   WaterfallStepContext,
 } from 'botbuilder-dialogs';
+import { api, QueryBuilder, QueryType } from '../api';
 import { ILogger } from '../logger';
 const MAIN_WATERFALL_DIALOG = 'mainwaterfalldialog';
 export class MainDialog extends ComponentDialog {
@@ -25,7 +26,10 @@ export class MainDialog extends ComponentDialog {
 
     this.addDialog(new ChoicePrompt('TextPrompt'));
     this.addDialog(
-      new WaterfallDialog(MAIN_WATERFALL_DIALOG, [this.introStep.bind(this)]),
+      new WaterfallDialog(MAIN_WATERFALL_DIALOG, [
+        this.introStep.bind(this),
+        this.handleCategoryChoice.bind(this),
+      ]),
     );
     this.initialDialogId = MAIN_WATERFALL_DIALOG;
   }
@@ -49,7 +53,21 @@ export class MainDialog extends ComponentDialog {
   ): Promise<DialogTurnResult> {
     return await step.prompt('TextPrompt', {
       prompt: 'What can i help you with today?',
-      choices: [{ value: 'Event' }, { value: 'Attraction' }],
+      choices: Object.keys(QueryType).map((k) => ({ value: k })),
     });
+  }
+
+  private async handleCategoryChoice(
+    step: WaterfallStepContext,
+  ): Promise<DialogTurnResult> {
+    await step.context.sendActivity(
+      `You chose to see ${step.context.activity.text}`,
+    );
+    const q = new QueryBuilder().addType(step.context.activity.text);
+    const responses = await api.query(q.build());
+    await step.context.sendActivity(
+      JSON.stringify(responses.results.bindings[0]),
+    );
+    return step.endDialog(responses);
   }
 }
