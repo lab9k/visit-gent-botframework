@@ -2,19 +2,19 @@ interface IHead {
   link: any[];
   vars: string[];
 }
-interface IResultValue {
+interface IAttractionResultValue {
   type: string;
   value: string;
   'xml:lang'?: string;
 }
-interface IResult {
-  [key: string]: IResultValue;
+export interface IAttractionResult {
+  [key: string]: IAttractionResultValue;
 }
 
 interface IResults {
   distinct: boolean;
   ordered: boolean;
-  bindings: object[];
+  bindings: IAttractionResult[];
 }
 export interface ISparqlResponse {
   head: IHead;

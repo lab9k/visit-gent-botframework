@@ -1,4 +1,12 @@
-import { StatePropertyAccessor, TurnContext } from 'botbuilder';
+import {
+  ActionTypes,
+  Attachment,
+  CardAction,
+  CardFactory,
+  MessageFactory,
+  StatePropertyAccessor,
+  TurnContext,
+} from 'botbuilder';
 import {
   ChoicePrompt,
   ComponentDialog,
@@ -9,8 +17,11 @@ import {
   WaterfallDialog,
   WaterfallStepContext,
 } from 'botbuilder-dialogs';
+import { map, sample, sampleSize } from 'lodash';
 import { api, QueryBuilder, QueryType } from '../api';
 import { ILogger } from '../logger';
+import { IAttractionResult } from '../models/SparqlResponse';
+
 const MAIN_WATERFALL_DIALOG = 'mainwaterfalldialog';
 export class MainDialog extends ComponentDialog {
   private logger: ILogger;
@@ -65,9 +76,35 @@ export class MainDialog extends ComponentDialog {
     );
     const q = new QueryBuilder().addType(step.context.activity.text);
     const responses = await api.query(q.build());
-    await step.context.sendActivity(
-      JSON.stringify(responses.results.bindings[0]),
-    );
+    const carousel = this.getCarouselFrom(responses.results.bindings);
+    const carouselSlice = sampleSize(carousel, 5);
+    const message = MessageFactory.carousel(carouselSlice);
+    await step.context.sendActivity(message);
     return step.endDialog(responses);
+  }
+
+  private getCarouselFrom(attractions: IAttractionResult[]): Attachment[] {
+    return map(attractions, (attraction) => {
+      const cardButtons: CardAction[] = [
+        {
+          title: 'Website',
+          value: attraction.page.value,
+          type: ActionTypes.OpenUrl,
+        },
+      ];
+      if (process.env.NODE_ENV === 'development') {
+        cardButtons.push({
+          title: 'Data uri',
+          value: attraction.attraction.value,
+          type: ActionTypes.OpenUrl,
+        });
+      }
+      return CardFactory.heroCard(
+        attraction.name.value,
+        attraction.description.value,
+        [sample(attraction.imagesList.value.split(', '))],
+        cardButtons,
+      );
+    });
   }
 }
