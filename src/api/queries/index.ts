@@ -23,6 +23,7 @@ export const QueryType = {
     OPTIONAL { ?attraction n3:location ?location . ?location foaf:page ?locationPage } .
     FILTER (langMatches(lang(?name), lang(?description))) .
     FILTER (langMatches(lang(?name), {% lang %})) .
+    # FILTER (?startDate > {% startDate %}^^xsd:dateTime) .
   }
   GROUP BY ?attraction ?name ?description ?page ?startDate ?endDate ?locationPage
   `,
@@ -42,5 +43,6 @@ export const QueryType = {
     ?attraction n3:url ?url .
     ?attraction n3:image ?image .
     FILTER (langMatches(lang(?name), lang(?description))) .
+    FILTER (langMatches(lang(?name), {% lang %})) .
   } GROUP BY ?attraction ?name ?description ?url`,
 };
