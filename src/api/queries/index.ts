@@ -34,7 +34,7 @@ export const QueryType = {
     ?attraction
     ?name
     ?description
-    (IRI(?url) AS ?strurl)
+    (IRI(?url) AS ?page)
     (GROUP_CONCAT(?image; SEPARATOR=", ") AS ?imagesList)
   WHERE {
     ?attraction a <http://schema.org/TouristAttraction> .
