@@ -1,31 +1,44 @@
 export const QueryType = {
   Events: `
-  PREFIX n3: <http://schema.org/>
+  PREFIX schema: <http://schema.org/>
+  PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
   PREFIX foaf: <http://xmlns.com/foaf/0.1/>
   SELECT
     ?attraction
     ?name
     ?description
     ?page
-    ?startDate
-    ?endDate
     ?locationPage
+    ?from
+    ?to
+    ?opensTime
+    ?closesTime
     (GROUP_CONCAT(?image; SEPARATOR=", ") AS ?imagesList)
   FROM <http://stad.gent/tourism/events/>
   WHERE {
-    ?attraction a n3:Event .
-    ?attraction n3:name ?name .
-    ?attraction n3:description ?description .
+    ?attraction a schema:Event .
+    ?attraction schema:name ?name .
+    ?attraction schema:description ?description .
     ?attraction foaf:page ?page .
-    ?attraction n3:image ?image .
-    OPTIONAL { ?attraction n3:endDate ?endDate } .
-    OPTIONAL { ?attraction n3:startDate ?startDate } .
-    OPTIONAL { ?attraction n3:location ?location . ?location foaf:page ?locationPage } .
+    ?attraction schema:image ?image .
+    ?attraction schema:openingHoursSpecification ?spec .
+    ?spec schema:validFrom ?from .
+    ?spec schema:validThrough ?to .
+    ?spec schema:opens ?opens .
+    ?spec schema:closes ?closes .
+    OPTIONAL { ?attraction schema:location ?location .
+               ?location foaf:page ?locationPage } .
     FILTER (langMatches(lang(?name), lang(?description))) .
     FILTER (langMatches(lang(?name), {% lang %})) .
-    # FILTER (?startDate > {% startDate %}^^xsd:dateTime) .
-  }
-  GROUP BY ?attraction ?name ?description ?page ?startDate ?endDate ?locationPage
+    # Filter to make sure events happen around specified date
+    FILTER (?from <= "{% startDate %}"^^xsd:date)
+    FILTER (?to >= "{% endDate %}"^^xsd:date)
+    BIND(STRDT(CONCAT("{% startDate %}T",?opens,":00"), xsd:dateTime) as ?opensTime)
+    BIND(STRDT(CONCAT("{% endDate %}T",?closes,":00"), xsd:dateTime) as ?closesTime)
+    # Next filter can specify the hour events are open. Not needed for now.
+    # FILTER(?opensTime < "2019-05-21T14:00:00"^^xsd:dateTime)
+    # FILTER(?closesTime > "2019-05-21T15:00:00"^^xsd:dateTime)
+  } ORDER BY DESC(?from)
   `,
   Attractions: `
   PREFIX schema: <http://schema.org/>

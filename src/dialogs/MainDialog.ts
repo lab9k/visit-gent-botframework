@@ -1,5 +1,6 @@
 import {
   ActionTypes,
+  ActivityTypes,
   Attachment,
   CardAction,
   CardFactory,
@@ -72,8 +73,11 @@ export class MainDialog extends ComponentDialog {
     step: WaterfallStepContext,
   ): Promise<DialogTurnResult> {
     await step.context.sendActivity(
-      `You chose to see ${step.context.activity.text}`,
+      `Dit zijn de "${
+        step.context.activity.text
+      }" die momenteel te bezoeken zijn.`,
     );
+    await step.context.sendActivity({ type: ActivityTypes.Typing });
     const q = new QueryBuilder().addType(step.context.activity.text);
     const responses = await api.query(q.build());
     const carousel = this.getCarouselFrom(responses.results.bindings);

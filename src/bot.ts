@@ -53,7 +53,7 @@ export class VisitBot extends ActivityHandler {
       const membersAdded = context.activity.membersAdded;
       for (const member of membersAdded) {
         if (member.id !== context.activity.recipient.id) {
-          await context.sendActivity('Hello and welcome!');
+          await context.sendActivity('Hallo en welkom!');
         }
       }
       // By calling next() you ensure that the next BotHandler is run.
