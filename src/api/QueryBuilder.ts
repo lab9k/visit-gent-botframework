@@ -4,10 +4,12 @@ import { QueryType } from './queries';
 export class QueryBuilder {
   private lang: string = 'en';
   private query: string;
+  private type: string;
   private startDate: moment.Moment = moment(moment.now());
   private endDate: moment.Moment = moment(moment.now());
 
   public addType(type: string): QueryBuilder {
+    this.type = type;
     this.query =
       QueryType[type] ||
       (() => {
@@ -37,9 +39,15 @@ export class QueryBuilder {
         'QueryType must be specified. Have you tried \'new QueryBuilder().addType(type)\' ?',
       );
     }
+    const startDateStr = this.startDate.format('YYYY-MM-DD');
+    const endDateStr = this.endDate.format('YYYY-MM-DD');
+    console.log(`Querying ${this.type} with:
+    startDate: \t${startDateStr}
+    endDate: \t${endDateStr}
+    lang: \t${this.lang}`);
     return this.query
-      .replace('{% lang %}', `'${this.lang}'`)
-      .replace('{% startDate %}', this.startDate.format('YYYY-MM-DD'))
-      .replace('{% endDate %}', this.endDate.format('YYYY-MM-DD'));
+      .replace(/{% lang %}/g, `'${this.lang}'`)
+      .replace(/{% startDate %}/g, startDateStr)
+      .replace(/{% endDate %}/g, endDateStr);
   }
 }

@@ -78,7 +78,9 @@ export class MainDialog extends ComponentDialog {
       }" die momenteel te bezoeken zijn.`,
     );
     await step.context.sendActivity({ type: ActivityTypes.Typing });
-    const q = new QueryBuilder().addType(step.context.activity.text);
+    const q = new QueryBuilder()
+      .addType(step.context.activity.text)
+      .addLang('nl');
     const responses = await api.query(q.build());
     const carousel = this.getCarouselFrom(responses.results.bindings);
     const carouselSlice = sampleSize(carousel, 5);
@@ -105,7 +107,7 @@ export class MainDialog extends ComponentDialog {
       }
       return CardFactory.heroCard(
         attraction.name.value,
-        attraction.description.value,
+        `${attraction.opensTime.value} - ${attraction.closesTime.value}`,
         [sample(attraction.imagesList.value.split(', '))],
         cardButtons,
       );
