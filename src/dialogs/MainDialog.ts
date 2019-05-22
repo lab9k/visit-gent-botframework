@@ -19,6 +19,7 @@ import {
   WaterfallStepContext,
 } from 'botbuilder-dialogs';
 import { map, sample, sampleSize } from 'lodash';
+import * as moment from 'moment';
 import { api, QueryBuilder, QueryType } from '../api';
 import { ILogger } from '../logger';
 import { IAttractionResult } from '../models/SparqlResponse';
@@ -105,10 +106,18 @@ export class MainDialog extends ComponentDialog {
           type: ActionTypes.OpenUrl,
         });
       }
+      // TODO: get locale from userSate
+      moment.locale('nl-be');
+      const fromDate = moment(attraction.fromMin.value, 'YYYY-MM-DD').format(
+        'Do MMMM YYYY',
+      );
+      const toDate = moment(attraction.toMax.value, 'YYYY-MM-DD').format(
+        'Do MMM YYYY',
+      );
       return CardFactory.heroCard(
         attraction.name.value,
-        `${attraction.opensTime.value} - ${attraction.closesTime.value}`,
-        [sample(attraction.imagesList.value.split(', '))],
+        `${fromDate} - ${toDate}`,
+        [sample(attraction.imagesList)],
         cardButtons,
       );
     });

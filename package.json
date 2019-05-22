@@ -13,7 +13,7 @@
     "postinstall": "npm run build && node ./deploymentScripts/webConfigPrep.js",
     "start": "node ./lib/index.js",
     "debug": "npm run build && node --inspect ./lib/index.js",
-    "watch": "ts-node-dev ./src/index.ts"
+    "watch": "tsnd --inspect --respawn ./src/index.ts"
   },
   "author": "Jef Willems <jef.willems@digipolis.gent>",
   "license": "ISC",

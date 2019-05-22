@@ -9,36 +9,35 @@ export const QueryType = {
     ?description
     ?page
     ?locationPage
-    ?from
-    ?to
-    ?opensTime
-    ?closesTime
-    (GROUP_CONCAT(?image; SEPARATOR=", ") AS ?imagesList)
-  FROM <http://stad.gent/tourism/events/>
+    ?image
+    (MIN(?from) as ?fromMin)
+    (MAX(?to) as ?toMax)
   WHERE {
     ?attraction a schema:Event .
     ?attraction schema:name ?name .
     ?attraction schema:description ?description .
     ?attraction foaf:page ?page .
     ?attraction schema:image ?image .
-    ?attraction schema:openingHoursSpecification ?spec .
-    ?spec schema:validFrom ?from .
-    ?spec schema:validThrough ?to .
-    ?spec schema:opens ?opens .
-    ?spec schema:closes ?closes .
     OPTIONAL { ?attraction schema:location ?location .
                ?location foaf:page ?locationPage } .
-    FILTER (langMatches(lang(?name), lang(?description))) .
+    ?attraction schema:openingHoursSpecification ?spec.
+    ?spec schema:validFrom ?outFrom.
+    ?spec schema:validThrough ?outTo.
+    FILTER (?outFrom <= "{% startDate %}"^^xsd:date)
+    FILTER (?outTo >= "{% endDate %}"^^xsd:date)
     FILTER (langMatches(lang(?name), {% lang %})) .
-    # Filter to make sure events happen around specified date
-    FILTER (?from <= "{% startDate %}"^^xsd:date)
-    FILTER (?to >= "{% endDate %}"^^xsd:date)
-    BIND(STRDT(CONCAT("{% startDate %}T",?opens,":00"), xsd:dateTime) as ?opensTime)
-    BIND(STRDT(CONCAT("{% endDate %}T",?closes,":00"), xsd:dateTime) as ?closesTime)
-    # Next filter can specify the hour events are open. Not needed for now.
-    # FILTER(?opensTime < "2019-05-21T14:00:00"^^xsd:dateTime)
-    # FILTER(?closesTime > "2019-05-21T15:00:00"^^xsd:dateTime)
-  } ORDER BY DESC(?from)
+    FILTER (langMatches(lang(?name), lang(?description))) .
+    {
+      SELECT ?to ?from WHERE {
+        ?attraction foaf:page ?page .
+        ?attraction schema:openingHoursSpecification ?spec.
+        ?spec schema:validFrom ?from.
+        ?spec schema:validThrough ?to.
+        ?spec schema:opens ?opens.
+        ?spec schema:closes ?closes.
+      } GROUP BY ?from ?to
+    }
+  }
   `,
   Attractions: `
   PREFIX schema: <http://schema.org/>

@@ -18,7 +18,23 @@ export class SparqlApi {
       const resp = await this.instance.get('', {
         params: { ...this.options, query },
       });
-      return resp.data as SparqlResponse;
+      const data = resp.data as SparqlResponse;
+      const retBindings = [...data.results.bindings];
+      const newBindings = [];
+      retBindings.forEach((attr) => {
+        const found = newBindings.find(
+          (el) => el.attraction.value === attr.attraction.value,
+        );
+        if (found) {
+          found.imagesList.push(found.image.value);
+        } else {
+          const newAttr = { ...attr, imagesList: [attr.image.value] };
+
+          newBindings.push(newAttr);
+        }
+      });
+      data.results.bindings = newBindings;
+      return data;
     } catch (error) {
       throw error;
     }
