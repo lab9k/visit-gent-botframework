@@ -57,7 +57,7 @@ const myBot = new VisitBot(conversationState, userState, dialog, logger);
 
 // Listen for incoming requests.
 server.post('/api/messages', (req, res) => {
-  adapter.processActivity(req, res, async (context) => {
+  adapter.processActivity(req, res, async context => {
     // Route to main dialog.
     await myBot.run(context);
   });

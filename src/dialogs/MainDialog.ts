@@ -28,13 +28,9 @@ const MAIN_WATERFALL_DIALOG = 'mainwaterfalldialog';
 export class MainDialog extends ComponentDialog {
   private logger: ILogger;
 
-  constructor(logger: ILogger) {
+  constructor(logger: ILogger = console as ILogger) {
     super('MainDialog');
 
-    if (!logger) {
-      logger = console as ILogger;
-      logger.log('[MainDialog]: logger not passed in, defaulting to console');
-    }
     this.logger = logger;
 
     this.addDialog(new ChoicePrompt('TextPrompt'));
@@ -66,7 +62,7 @@ export class MainDialog extends ComponentDialog {
   ): Promise<DialogTurnResult> {
     return await step.prompt('TextPrompt', {
       prompt: 'What can i help you with today?',
-      choices: Object.keys(QueryType).map((k) => ({ value: k })),
+      choices: Object.keys(QueryType).map(k => ({ value: k })),
     });
   }
 
@@ -91,7 +87,7 @@ export class MainDialog extends ComponentDialog {
   }
 
   private getCarouselFrom(attractions: IAttractionResult[]): Attachment[] {
-    return map(attractions, (attraction) => {
+    return map(attractions, attraction => {
       const cardButtons: CardAction[] = [
         {
           title: 'Website',
@@ -109,10 +105,10 @@ export class MainDialog extends ComponentDialog {
       // TODO: get locale from userSate
       moment.locale('nl-be');
       const fromDate = moment(attraction.fromMin.value, 'YYYY-MM-DD').format(
-        'Do MMMM YYYY',
+        'D MMMM YYYY',
       );
       const toDate = moment(attraction.toMax.value, 'YYYY-MM-DD').format(
-        'Do MMM YYYY',
+        'D MMM YYYY',
       );
       return CardFactory.heroCard(
         attraction.name.value,

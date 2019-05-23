@@ -1,3 +1,4 @@
+// tslint:disable-next-line:variable-name
 export const QueryType = {
   Events: `
   PREFIX schema: <http://schema.org/>

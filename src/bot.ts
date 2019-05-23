@@ -19,13 +19,9 @@ export class VisitBot extends ActivityHandler {
     conversationState: BotState,
     userState: BotState,
     dialog: Dialog,
-    logger: ILogger,
+    logger: ILogger = console as ILogger,
   ) {
     super();
-    if (!logger) {
-      logger = console as ILogger;
-      logger.log('[VisitBot]: logger not passed in, defaulting to console');
-    }
 
     this.conversationState = conversationState as ConversationState;
     this.userState = userState as UserState;

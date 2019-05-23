@@ -21,9 +21,9 @@ export class SparqlApi {
       const data = resp.data as SparqlResponse;
       const retBindings = [...data.results.bindings];
       const newBindings = [];
-      retBindings.forEach((attr) => {
+      retBindings.forEach(attr => {
         const found = newBindings.find(
-          (el) => el.attraction.value === attr.attraction.value,
+          el => el.attraction.value === attr.attraction.value,
         );
         if (found) {
           found.imagesList.push(found.image.value);
