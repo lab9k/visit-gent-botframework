@@ -12,7 +12,7 @@
     "lint": "node_modules/.bin/tslint -c tslint.json 'src/**/*.ts'",
     "postinstall": "npm run build && node ./deploymentScripts/webConfigPrep.js",
     "start": "node ./lib/index.js",
-    "watch": "tsnd --inspect --respawn ./src/index.ts"
+    "watch": "tsnd --respawn ./src/index.ts"
   },
   "author": "Jef Willems <jef.willems@digipolis.gent>",
   "license": "ISC",

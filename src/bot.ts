@@ -3,11 +3,14 @@ import {
   BotState,
   ConversationState,
   StatePropertyAccessor,
+  TurnContext,
   UserState,
 } from 'botbuilder';
 import { Dialog, DialogState } from 'botbuilder-dialogs';
 import { MainDialog } from './dialogs/MainDialog';
 import { ILogger } from './logger';
+import { IRunnable } from './models/IRunnable';
+import { ILanguage } from './models/Language';
 
 export class VisitBot extends ActivityHandler {
   private conversationState: BotState;
@@ -15,6 +18,8 @@ export class VisitBot extends ActivityHandler {
   private logger: ILogger;
   private dialog: Dialog;
   private dialogState: StatePropertyAccessor<DialogState>;
+  private languageChoiceState: StatePropertyAccessor<ILanguage>;
+
   constructor(
     conversationState: BotState,
     userState: BotState,
@@ -30,39 +35,56 @@ export class VisitBot extends ActivityHandler {
     this.dialogState = this.conversationState.createProperty<DialogState>(
       'DialogState',
     );
+    this.languageChoiceState = this.conversationState.createProperty<ILanguage>(
+      'languageChoiceState',
+    );
 
     // See https://aka.ms/about-bot-activity-message to learn more about the message and other activity types.
-    this.onMessage(async (context, next) => {
-      this.logger.log('Running dialog with Message Activity.');
+    this.onMessage(this.handleMessage.bind(this));
 
-      // Run the Dialog with the new message Activity.
-      await (this.dialog as MainDialog).run(context, this.dialogState);
+    this.onMembersAdded(this.handleMembersAdded.bind(this));
 
-      // Save any state changes. The load happened during the execution of the Dialog.
-      await this.conversationState.saveChanges(context, false);
-      await this.userState.saveChanges(context, false);
+    this.onDialog(this.handleDialog.bind(this));
+  }
 
-      await next();
-    });
+  private async handleMessage(context: TurnContext, next: () => Promise<void>) {
+    this.logger.log('Running dialog with Message Activity.');
 
-    this.onMembersAdded(async (context, next) => {
-      const membersAdded = context.activity.membersAdded;
-      for (const member of membersAdded) {
-        if (member.id !== context.activity.recipient.id) {
-          await context.sendActivity('Hallo en welkom!');
-        }
+    // Run the Dialog with the new message Activity.
+    await (this.dialog as MainDialog).run(
+      context,
+      this.dialogState,
+      this.languageChoiceState,
+    );
+
+    // Save any state changes. The load happened during the execution of the Dialog.
+    await this.conversationState.saveChanges(context, false);
+    await this.userState.saveChanges(context, false);
+
+    await next();
+  }
+
+  private async handleMembersAdded(
+    context: TurnContext,
+    next: () => Promise<void>,
+  ) {
+    const membersAdded = context.activity.membersAdded;
+    for (const member of membersAdded) {
+      if (member.id !== context.activity.recipient.id) {
+        await context.sendActivity('Hallo en welkom!');
+        await this.handleMessage(context, next);
       }
-      // By calling next() you ensure that the next BotHandler is run.
-      await next();
-    });
+    }
+    // By calling next() you ensure that the next BotHandler is run.
+    await next();
+  }
 
-    this.onDialog(async (context, next) => {
-      // Save any state changes. The load happened during the execution of the Dialog.
-      await this.conversationState.saveChanges(context, false);
-      await this.userState.saveChanges(context, false);
+  private async handleDialog(context: TurnContext, next: () => Promise<void>) {
+    // Save any state changes. The load happened during the execution of the Dialog.
+    await this.conversationState.saveChanges(context, false);
+    await this.userState.saveChanges(context, false);
 
-      // By calling next() you ensure that the next BotHandler is run.
-      await next();
-    });
+    // By calling next() you ensure that the next BotHandler is run.
+    await next();
   }
 }
