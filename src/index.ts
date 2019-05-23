@@ -13,6 +13,7 @@ import {
 
 // This bot's main dialog.
 import { VisitBot } from './bot';
+import { LanguageSelectionDialog } from './dialogs/LanguageSelectionDialog';
 import { MainDialog } from './dialogs/MainDialog';
 
 const ENV_FILE = path.join(__dirname, '..', '.env');
@@ -21,7 +22,7 @@ config({ path: ENV_FILE });
 // Create HTTP server.
 const server = restify.createServer();
 server.listen(process.env.port || process.env.PORT || 3978, () => {
-  console.log(`\n${server.name} listening to ${server.url}`);
+  logger.log(`\n${server.name} listening to ${server.url}`);
 });
 
 // Create adapter.

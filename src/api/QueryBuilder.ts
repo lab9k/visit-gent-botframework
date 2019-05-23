@@ -1,4 +1,5 @@
 import * as moment from 'moment';
+import { ILogger } from '../logger';
 import { QueryType } from './queries';
 
 export class QueryBuilder {
@@ -7,6 +8,7 @@ export class QueryBuilder {
   private type: string;
   private startDate: moment.Moment = moment(moment.now());
   private endDate: moment.Moment = moment(moment.now());
+  private logger: ILogger = console as ILogger;
 
   public addType(type: string): QueryBuilder {
     this.type = type;
@@ -41,7 +43,7 @@ export class QueryBuilder {
     }
     const startDateStr = this.startDate.format('YYYY-MM-DD');
     const endDateStr = this.endDate.format('YYYY-MM-DD');
-    console.log(`Querying ${this.type} with:
+    this.logger.log(`Querying ${this.type} with:
     startDate: \t${startDateStr}
     endDate: \t${endDateStr}
     lang: \t${this.lang}`);
