@@ -1,13 +1,13 @@
 export interface ILanguage {
   sparqlLanguageProp: string;
-  langCode: string;
+  momentLangCode: string;
   name: string;
 }
 
 export const languages: ILanguage[] = [
-  { sparqlLanguageProp: 'nl', langCode: 'nl-be', name: 'Nederlands' },
-  { sparqlLanguageProp: 'en', langCode: 'en', name: 'English' },
-  { sparqlLanguageProp: 'fr', langCode: 'fr', name: 'Français' },
-  { sparqlLanguageProp: 'de', langCode: 'de', name: 'Deutsch' },
-  { sparqlLanguageProp: 'es', langCode: 'es', name: 'Espagnol' },
+  { sparqlLanguageProp: 'nl', momentLangCode: 'nl-be', name: 'Nederlands' },
+  { sparqlLanguageProp: 'en', momentLangCode: 'en', name: 'English' },
+  { sparqlLanguageProp: 'fr', momentLangCode: 'fr', name: 'Français' },
+  { sparqlLanguageProp: 'de', momentLangCode: 'de', name: 'Deutsch' },
+  { sparqlLanguageProp: 'es', momentLangCode: 'es', name: 'Espagnol' },
 ];

@@ -48,10 +48,9 @@ export class MainDialog extends ComponentDialog implements IRunnable {
     if (results.status === DialogTurnStatus.empty) {
       await dialogContext.beginDialog(this.id);
     } else if (results.status === DialogTurnStatus.complete) {
-      if (results.result.langCode) {
+      if ('momentLangCode' in results.result) {
         // ? completed language selection
         const chosenLang = results.result as ILanguage;
-        this.logger.log(`Results are: ${JSON.stringify(chosenLang)}`);
         languageChoiceAccessor.set(context, chosenLang);
         await dialogContext.beginDialog(attractionDialog.id);
       }

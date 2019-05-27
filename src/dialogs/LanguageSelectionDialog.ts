@@ -10,10 +10,10 @@ import {
   WaterfallDialog,
   WaterfallStepContext,
 } from 'botbuilder-dialogs';
-import { getStringFor } from '../lang/index';
 import { ILogger } from '../logger';
 import { IRunnable } from '../models/IRunnable';
 import { ILanguage, languages } from '../models/Language';
+import translations from '../translations';
 
 const LANGUAGE_WATERFALL_DIALOG = 'language_waterfall_dialog';
 export class LanguageSelectionDialog extends ComponentDialog
@@ -66,7 +66,10 @@ export class LanguageSelectionDialog extends ComponentDialog
   ): Promise<DialogTurnResult<ILanguage>> {
     const lang = languages.find(el => el.name === step.context.activity.text);
     await step.context.sendActivity(
-      getStringFor('SET_LANGUAGE', lang.sparqlLanguageProp),
+      translations.getStringFor(
+        translations.SET_LANGUAGE,
+        lang.sparqlLanguageProp,
+      ),
     );
     return step.endDialog(lang);
   }

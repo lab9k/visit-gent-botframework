@@ -1,0 +1,8 @@
+{
+  "SET_LANGUAGE": "I updated your language to 'English'",
+  "WHAT_TYPE_TO_SEE": "What would you like to see?",
+  "USE_BUTTONS": "Please use the provided buttons.",
+  "THESE_RESULTS": "These are the {% attractions %} worth visiting now.",
+  "EVENTS": "events",
+  "ATTRACTIONS": "sights"
+}
